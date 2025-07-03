@@ -44,6 +44,7 @@
             padding: 20px;
         }
         
+        /* Estilos do cabeçalho atualizados */
         header {
             background-color: var(--card-bg);
             color: var(--text-color);
@@ -67,11 +68,11 @@
             text-align: center;
         }
         
-        .header-img:first-child {
+        .header-img.left-img {
             text-align: left;
         }
         
-        .header-img:last-child {
+        .header-img.right-img {
             text-align: right;
         }
         
@@ -371,6 +372,7 @@
                 margin-bottom: 18px;
             }
             
+            /* Oculta as imagens apenas em telas pequenas */
             .header-img {
                 display: none;
             }
@@ -500,15 +502,15 @@
     <div class="container">
        <header>
             <div class="header-content">
-                <div class="header-img">
-                    <img src="./imge.jpg" style="height: 80px;">
+                <div class="header-img left-img">
+                    <img src="./-Z-56/imge.jpg" alt="Logo da Colônia" style="height: 80px;">
                 </div>
                 <div class="header-title">
                     <h1>Sistema de Cadastro de Pescadores Artesanais</h1>
                     <p>Colônia de Pescadores Z-56 de Coari-AM</p>
                 </div>
-                <div class="header-img">
-                    <img src="./imgp.jpg" style="height: 80px;">
+                <div class="header-img right-img">
+                    <img src="./-Z-56/imgp.jpg" alt="Brasão" style="height: 80px;">
                 </div>
             </div>
         </header>
