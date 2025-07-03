@@ -13,11 +13,11 @@
             --primary-hover: #1d4ed8;
             --text-color: #374151;
             --text-light: #6b7280;
-            --border-color: #e5e7eb;
-            --bg-color: #f9fafb;
+            --border-color: #d1d5db;
+            --bg-color: #f3f4f6;
             --card-bg: #ffffff;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
             --radius-sm: 6px;
             --radius-md: 8px;
             --radius-lg: 12px;
@@ -239,7 +239,7 @@
         }
         
         th {
-            background-color: #f3f4f6;
+            background-color: #f0f0f0;
             color: var(--text-color);
             font-weight: 600;
             position: sticky;
@@ -251,7 +251,7 @@
         }
         
         tr:hover {
-            background-color: rgba(0, 0, 0, 0.02);
+            background-color: rgba(0, 0, 0, 0.03);
         }
         
         .search-filter {
@@ -297,7 +297,7 @@
         }
         
         .material-table th {
-            background-color: #f3f4f6;
+            background-color: #f0f0f0;
             color: var(--text-color);
             font-weight: 500;
         }
@@ -316,7 +316,39 @@
             color: #374151;
         }
         
+        /* Melhorias na responsividade */
+        @media (max-width: 992px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .tab-content {
+                padding: 18px;
+            }
+            
+            .form-row {
+                gap: 12px;
+            }
+            
+            th, td {
+                padding: 10px 12px;
+            }
+        }
+        
         @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+            
+            header {
+                padding: 18px 0;
+                margin-bottom: 18px;
+            }
+            
+            header h1 {
+                font-size: 20px;
+            }
+            
             .form-row {
                 flex-direction: column;
                 gap: 12px;
@@ -330,6 +362,7 @@
                 border-bottom: 1px solid var(--border-color);
                 border-left: 2px solid transparent;
                 text-align: left;
+                padding: 10px 16px;
             }
             
             .tab.active {
@@ -342,6 +375,62 @@
             }
             
             .btn {
+                width: 100%;
+            }
+            
+            .tab-content {
+                padding: 16px;
+            }
+            
+            .search-filter {
+                padding: 12px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            
+            .material-table th, 
+            .material-table td {
+                padding: 8px 10px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            header h1 {
+                font-size: 18px;
+            }
+            
+            header p {
+                font-size: 13px;
+            }
+            
+            h2 {
+                font-size: 16px;
+            }
+            
+            .tab {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+            
+            input, select, textarea {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .btn-sm {
                 width: 100%;
             }
         }
@@ -367,10 +456,20 @@
 </head>
 <body>
     <div class="container">
-        <header>
+       <header>
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 20px;">
+        <div style="flex: 1; text-align: left;">
+            <img src="./Z-56/imge.jpg" style="height: 80px;">
+        </div>
+        <div style="flex: 1; text-align: center;">
             <h1>Sistema de Cadastro de Pescadores Artesanais</h1>
             <p>Colônia de Pescadores Z-56 de Coari-AM</p>
-        </header>
+        </div>
+        <div style="flex: 1; text-align: right;">
+            <img src="./Z-56/imgp.jpg" style="height: 80px;">
+        </div>
+    </div>
+</header>
         
         <div class="tabs">
             <div class="tab active" onclick="openTab('cadastro')">Cadastro</div>
