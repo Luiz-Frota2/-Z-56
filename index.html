@@ -14,7 +14,7 @@
             --text-color: #374151;
             --text-light: #6b7280;
             --border-color: #d1d5db;
-            --bg-color: #f3f4f6;
+            --bg-color: #e5e7eb; /* Fundo mais escuro */
             --card-bg: #ffffff;
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -183,6 +183,103 @@
             font-size: 14px;
             transition: var(--transition);
             background-color: var(--card-bg);
+        }
+        
+        /* Estilo melhorado para o campo de data */
+        .date-input-container {
+            position: relative;
+        }
+        
+        .date-input-container input[type="date"] {
+            padding-right: 30px;
+        }
+        
+        .date-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            pointer-events: none;
+        }
+        
+        /* Estilo para o calendário personalizado */
+        .date-picker {
+            position: relative;
+        }
+        
+        .date-picker-dialog {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 100;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-md);
+            padding: 10px;
+            width: 280px;
+        }
+        
+        .date-picker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .date-picker-title {
+            font-weight: 600;
+        }
+        
+        .date-picker-nav {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .date-picker-nav button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+        }
+        
+        .date-picker-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 500;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .date-picker-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        
+        .date-picker-day {
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .date-picker-day:hover {
+            background-color: rgba(37, 99, 235, 0.1);
+        }
+        
+        .date-picker-day.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .date-picker-day.other-month {
+            color: var(--text-light);
+            opacity: 0.5;
         }
         
         input:focus, select:focus, textarea:focus {
@@ -578,9 +675,10 @@
                     </div>
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group date-input-container">
                     <label for="dataInicioAtividade">Data de Início da Atividade Pesqueira:</label>
                     <input type="date" id="dataInicioAtividade" required>
+                    <span class="date-icon">📅</span>
                 </div>
                 
                 <h3>Materiais e Informações Adicionais</h3>
@@ -728,6 +826,31 @@
         
         let pescadores = JSON.parse(localStorage.getItem('pescadores')) || [];
         
+        // Inicializar o datepicker personalizado
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('dataInicioAtividade');
+            const dateIcon = document.querySelector('.date-icon');
+            
+            // Adiciona um ícone de calendário ao campo de data
+            dateIcon.addEventListener('click', function() {
+                dateInput.showPicker(); // Mostra o datepicker nativo
+            });
+            
+            // Formata a data para exibição mais amigável
+            dateInput.addEventListener('change', function() {
+                if (this.value) {
+                    const [year, month, day] = this.value.split('-');
+                    this.setAttribute('data-formatted', `${day}/${month}/${year}`);
+                }
+            });
+            
+            // Define a data atual como padrão
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            dateInput.value = formattedDate;
+            dateInput.dispatchEvent(new Event('change'));
+        });
+        
         // Função para abrir as abas
         function openTab(tabName) {
             const tabs = document.getElementsByClassName('tab');
@@ -802,6 +925,12 @@
             
             alert('Pescador cadastrado com sucesso!');
             document.getElementById('pescadorForm').reset();
+            
+            // Resetar a data para o dia atual
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('dataInicioAtividade').value = formattedDate;
+            document.getElementById('dataInicioAtividade').dispatchEvent(new Event('change'));
         }
         
         // Função para validar o formulário
