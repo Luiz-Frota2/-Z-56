@@ -714,495 +714,553 @@
             </table>
         </div>
     </div>
+<script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyAHzVJmzd5cpvciPLz4VPwwFvFlCEpexNk",
+        authDomain: "sistema-de-controle-2540b.firebaseapp.com",
+        databaseURL: "https://sistema-de-controle-2540b-default-rtdb.firebaseio.com",
+        projectId: "sistema-de-controle-2540b",
+        storageBucket: "sistema-de-controle-2540b.firebasestorage.app",
+        messagingSenderId: "343961710605",
+        appId: "1:343961710605:web:9a19e71ba72681d279e544",
+        measurementId: "G-K5ZSBHRWPM"
+    };
 
-    <script>
-        // Função para obter o nome do mês por extenso
-        function getNomeMes(numeroMes) {
-            const meses = [
-                "Janeiro", "Fevereiro", "Março", "Abril",
-                "Maio", "Junho", "Julho", "Agosto",
-                "Setembro", "Outubro", "Novembro", "Dezembro"
-            ];
-            return meses[numeroMes - 1] || '';
-        }
+    // Inicialize o Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Função para obter o nome do mês por extenso
+    function getNomeMes(numeroMes) {
+        const meses = [
+            "Janeiro", "Fevereiro", "Março", "Abril",
+            "Maio", "Junho", "Julho", "Agosto",
+            "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
+        return meses[numeroMes - 1] || '';
+    }
+    
+    let pescadores = [];
+    
+    // Carrega os pescadores do Firebase quando a página é carregada
+    window.onload = function() {
+        carregarPescadores();
+    };
+    
+    // Função para carregar pescadores do Firebase
+    function carregarPescadores() {
+        const pescadoresRef = database.ref('pescadores');
         
-        let pescadores = JSON.parse(localStorage.getItem('pescadores')) || [];
-        
-        // Função para abrir as abas
-        function openTab(tabName) {
-            const tabs = document.getElementsByClassName('tab');
-            for (let i = 0; i < tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
-            
-            const tabContents = document.getElementsByClassName('tab-content');
-            for (let i = 0; i < tabContents.length; i++) {
-                tabContents[i].classList.remove('active');
-            }
-            
-            document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-            
-            if (tabName === 'listagem') {
+        pescadoresRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            pescadores = data ? Object.values(data) : [];
+            if (document.getElementById('listagem').classList.contains('active')) {
                 atualizarListagem();
             }
+        });
+    }
+    
+    // Função para abrir as abas
+    function openTab(tabName) {
+        const tabs = document.getElementsByClassName('tab');
+        for (let i = 0; i < tabs.length; i++) {
+            tabs[i].classList.remove('active');
         }
         
-        // Função para cadastrar um novo pescador
-        function cadastrarPescador() {
-            if (!validarFormulario()) return;
-            
-            const pescador = {
-                id: Date.now(),
-                nome: document.getElementById('nome').value,
-                nacionalidade: document.getElementById('nacionalidade').value,
-                endereco: document.getElementById('endereco').value,
-                cidade: document.getElementById('cidade').value,
-                estado: document.getElementById('estado').value,
-                cep: document.getElementById('cep').value,
-                rg: document.getElementById('rg').value,
-                cpf: document.getElementById('cpf').value,
-                rgp: document.getElementById('rgp').value,
-                rgpOrgao: document.getElementById('rgpOrgao').value,
-                dataInicioAtividade: document.getElementById('dataInicioAtividade').value,
-                materiais: {
-                    malhadeira: {
-                        quantidade: document.getElementById('malhadeiraQtd').value,
-                        especificacoes: document.getElementById('malhadeiraEspec').value
-                    },
-                    canoa: {
-                        quantidade: document.getElementById('canoaQtd').value,
-                        especificacoes: document.getElementById('canoaEspec').value
-                    },
-                    manejo: document.getElementById('manejo').value,
-                    isopor: {
-                        quantidade: document.getElementById('isoporQtd').value,
-                        especificacoes: document.getElementById('isoporEspec').value
-                    },
-                    motor: {
-                        quantidade: document.getElementById('motorQtd').value,
-                        especificacoes: document.getElementById('motorEspec').value
-                    },
-                    arrastao: {
-                        quantidade: document.getElementById('arrastaoQtd').value,
-                        especificacoes: document.getElementById('arrastaoEspec').value
-                    },
-                    geladeira: {
-                        quantidade: document.getElementById('geladeiraQtd').value,
-                        especificacoes: document.getElementById('geladeiraEspec').value
-                    }
+        const tabContents = document.getElementsByClassName('tab-content');
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove('active');
+        }
+        
+        document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+        
+        if (tabName === 'listagem') {
+            atualizarListagem();
+        }
+    }
+    
+    // Função para cadastrar um novo pescador no Firebase
+    function cadastrarPescador() {
+        if (!validarFormulario()) return;
+        
+        const pescador = {
+            id: Date.now(),
+            nome: document.getElementById('nome').value,
+            nacionalidade: document.getElementById('nacionalidade').value,
+            endereco: document.getElementById('endereco').value,
+            cidade: document.getElementById('cidade').value,
+            estado: document.getElementById('estado').value,
+            cep: document.getElementById('cep').value,
+            rg: document.getElementById('rg').value,
+            cpf: document.getElementById('cpf').value,
+            rgp: document.getElementById('rgp').value,
+            rgpOrgao: document.getElementById('rgpOrgao').value,
+            dataInicioAtividade: document.getElementById('dataInicioAtividade').value,
+            materiais: {
+                malhadeira: {
+                    quantidade: document.getElementById('malhadeiraQtd').value,
+                    especificacoes: document.getElementById('malhadeiraEspec').value
                 },
-                moradores: document.getElementById('moradores').value,
-                bolsaFamilia: document.getElementById('bolsaFamilia').value,
-                dataCadastro: new Date().toISOString()
-            };
-            
-            pescadores.push(pescador);
-            salvarNoLocalStorage();
-            
-            alert('Pescador cadastrado com sucesso!');
-            document.getElementById('pescadorForm').reset();
+                canoa: {
+                    quantidade: document.getElementById('canoaQtd').value,
+                    especificacoes: document.getElementById('canoaEspec').value
+                },
+                manejo: document.getElementById('manejo').value,
+                isopor: {
+                    quantidade: document.getElementById('isoporQtd').value,
+                    especificacoes: document.getElementById('isoporEspec').value
+                },
+                motor: {
+                    quantidade: document.getElementById('motorQtd').value,
+                    especificacoes: document.getElementById('motorEspec').value
+                },
+                arrastao: {
+                    quantidade: document.getElementById('arrastaoQtd').value,
+                    especificacoes: document.getElementById('arrastaoEspec').value
+                },
+                geladeira: {
+                    quantidade: document.getElementById('geladeiraQtd').value,
+                    especificacoes: document.getElementById('geladeiraEspec').value
+                }
+            },
+            moradores: document.getElementById('moradores').value,
+            bolsaFamilia: document.getElementById('bolsaFamilia').value,
+            dataCadastro: new Date().toISOString()
+        };
+        
+        // Salva no Firebase
+        const novoPescadorRef = database.ref('pescadores').push();
+        novoPescadorRef.set(pescador)
+            .then(() => {
+                alert('Pescador cadastrado com sucesso!');
+                document.getElementById('pescadorForm').reset();
+            })
+            .catch((error) => {
+                console.error("Erro ao salvar pescador:", error);
+                alert('Erro ao cadastrar pescador. Por favor, tente novamente.');
+            });
+    }
+    
+    // Função para validar o formulário (mantida igual)
+    function validarFormulario() {
+        const camposObrigatorios = [
+            'nome', 'nacionalidade', 'endereco', 'cidade', 'estado', 'cep',
+            'rg', 'cpf', 'rgp', 'rgpOrgao', 'dataInicioAtividade'
+        ];
+        
+        for (const campoId of camposObrigatorios) {
+            const campo = document.getElementById(campoId);
+            if (!campo.value.trim()) {
+                alert(`Por favor, preencha o campo: ${campo.previousElementSibling.textContent}`);
+                campo.focus();
+                return false;
+            }
         }
         
-        // Função para validar o formulário
-        function validarFormulario() {
-            const camposObrigatorios = [
-                'nome', 'nacionalidade', 'endereco', 'cidade', 'estado', 'cep',
-                'rg', 'cpf', 'rgp', 'rgpOrgao', 'dataInicioAtividade'
-            ];
+        return true;
+    }
+    
+    // Função para atualizar a listagem (modificada para trabalhar com dados do Firebase)
+    function atualizarListagem(filtrados = pescadores) {
+        const corpoTabela = document.getElementById('corpoTabela');
+        corpoTabela.innerHTML = '';
+        
+        if (filtrados.length === 0) {
+            corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum pescador cadastrado</td></tr>';
+            return;
+        }
+        
+        filtrados.forEach(pescador => {
+            const tr = document.createElement('tr');
             
-            for (const campoId of camposObrigatorios) {
-                const campo = document.getElementById(campoId);
-                if (!campo.value.trim()) {
-                    alert(`Por favor, preencha o campo: ${campo.previousElementSibling.textContent}`);
-                    campo.focus();
+            // Lista de materiais que o pescador possui
+            const materiais = [];
+            if (pescador.materiais.malhadeira.quantidade) materiais.push('Malhadeira');
+            if (pescador.materiais.canoa.quantidade) materiais.push('Canoa');
+            if (pescador.materiais.motor.quantidade) materiais.push('Motor');
+            if (pescador.materiais.arrastao.quantidade) materiais.push('Arrastão');
+            
+            tr.innerHTML = `
+                <td>${pescador.nome}</td>
+                <td>${formatarCPF(pescador.cpf)}</td>
+                <td>${pescador.cidade}/${pescador.estado}</td>
+                <td>${pescador.rg}</td>
+                <td>${materiais.join(', ')}</td>
+                <td class="actions">
+                    <button class="btn btn-sm" onclick="gerarPDF('${pescador.id}')">PDF</button>
+                    <button class="btn btn-outline btn-sm" onclick="excluirPescador('${pescador.id}')">Excluir</button>
+                </td>
+            `;
+            
+            corpoTabela.appendChild(tr);
+        });
+    }
+    
+    // Função para filtrar os pescadores (mantida igual)
+    function filtrarPescadores() {
+        const filtroNome = document.getElementById('filtroNome').value.toLowerCase();
+        const filtroCidade = document.getElementById('filtroCidade').value.toLowerCase();
+        const filtroCPF = document.getElementById('filtroCPF').value.toLowerCase();
+        const filtroRG = document.getElementById('filtroRG').value.toLowerCase();
+        const filtroMaterial = document.getElementById('filtroMaterial').value;
+        const filtroBolsaFamilia = document.getElementById('filtroBolsaFamilia').value;
+        
+        const filtrados = pescadores.filter(pescador => {
+            // Filtro por nome
+            if (filtroNome && !pescador.nome.toLowerCase().includes(filtroNome)) {
+                return false;
+            }
+            
+            // Filtro por cidade
+            if (filtroCidade && !pescador.cidade.toLowerCase().includes(filtroCidade)) {
+                return false;
+            }
+            
+            // Filtro por CPF
+            if (filtroCPF && !pescador.cpf.includes(filtroCPF)) {
+                return false;
+            }
+            
+            // Filtro por RG
+            if (filtroRG && !pescador.rg.includes(filtroRG)) {
+                return false;
+            }
+            
+            // Filtro por material
+            if (filtroMaterial) {
+                if (filtroMaterial === 'Malhadeira' && !pescador.materiais.malhadeira.quantidade) {
                     return false;
                 }
+                if (filtroMaterial === 'Canoa' && !pescador.materiais.canoa.quantidade) {
+                    return false;
+                }
+                if (filtroMaterial === 'Motor de Popa' && !pescador.materiais.motor.quantidade) {
+                    return false;
+                }
+                if (filtroMaterial === 'Arrastão' && !pescador.materiais.arrastao.quantidade) {
+                    return false;
+                }
+            }
+            
+            // Filtro por Bolsa Família
+            if (filtroBolsaFamilia && pescador.bolsaFamilia !== filtroBolsaFamilia) {
+                return false;
             }
             
             return true;
-        }
+        });
         
-        // Função para salvar no localStorage
-        function salvarNoLocalStorage() {
-            localStorage.setItem('pescadores', JSON.stringify(pescadores));
+        atualizarListagem(filtrados);
+    }
+    
+    // Função para excluir um pescador do Firebase
+    function excluirPescador(id) {
+        if (confirm('Tem certeza que deseja excluir este pescador?')) {
+            // Encontra a chave do pescador no Firebase
+            database.ref('pescadores').orderByChild('id').equalTo(Number(id)).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const key = Object.keys(snapshot.val())[0];
+                        return database.ref('pescadores/' + key).remove();
+                    } else {
+                        throw new Error('Pescador não encontrado');
+                    }
+                })
+                .then(() => {
+                    alert('Pescador excluído com sucesso!');
+                })
+                .catch((error) => {
+                    console.error("Erro ao excluir pescador:", error);
+                    alert('Erro ao excluir pescador. Por favor, tente novamente.');
+                });
         }
-        
-        // Função para atualizar a listagem
-        function atualizarListagem(filtrados = pescadores) {
-            const corpoTabela = document.getElementById('corpoTabela');
-            corpoTabela.innerHTML = '';
+    }
+    
+    // Função para cadastrar e gerar PDF (mantida igual)
+    function cadastrarEGerarPDF() {
+        if (validarFormulario()) {
+            cadastrarPescador();
+            // O último pescador cadastrado é o que acabamos de adicionar
+            // Como agora é assíncrono, precisamos pensar em uma abordagem diferente
+            // Vamos apenas gerar o PDF sem salvar neste caso
+            gerarPDF();
+        }
+    }
+    
+    // Função para formatar CPF (mantida igual)
+    function formatarCPF(cpf) {
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+    
+    // Função para formatar data (mantida igual)
+    function formatarData(dataISO) {
+        const data = new Date(dataISO);
+        const dia = data.getDate().toString().padStart(2, '0');
+        const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+        const ano = data.getFullYear();
+        return `${dia}/${mes}/${ano}`;
+    }
+    
+    // Função para gerar PDF (modificada para buscar do Firebase quando necessário)
+    function gerarPDF(idPescador = null) {
+        try { 
+            let pescador;
             
-            if (filtrados.length === 0) {
-                corpoTabela.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhum pescador cadastrado</td></tr>';
-                return;
-            }
-            
-            filtrados.forEach(pescador => {
-                const tr = document.createElement('tr');
-                
-                // Lista de materiais que o pescador possui
-                const materiais = [];
-                if (pescador.materiais.malhadeira.quantidade) materiais.push('Malhadeira');
-                if (pescador.materiais.canoa.quantidade) materiais.push('Canoa');
-                if (pescador.materiais.motor.quantidade) materiais.push('Motor');
-                if (pescador.materiais.arrastao.quantidade) materiais.push('Arrastão');
-                
-                tr.innerHTML = `
-                    <td>${pescador.nome}</td>
-                    <td>${formatarCPF(pescador.cpf)}</td>
-                    <td>${pescador.cidade}/${pescador.estado}</td>
-                    <td>${pescador.rg}</td>
-                    <td>${materiais.join(', ')}</td>
-                    <td class="actions">
-                        <button class="btn btn-sm" onclick="gerarPDF(${pescador.id})">PDF</button>
-                        <button class="btn btn-outline btn-sm" onclick="excluirPescador(${pescador.id})">Excluir</button>
-                    </td>
-                `;
-                
-                corpoTabela.appendChild(tr);
-            });
-        }
-        
-        // Função para filtrar os pescadores
-        function filtrarPescadores() {
-            const filtroNome = document.getElementById('filtroNome').value.toLowerCase();
-            const filtroCidade = document.getElementById('filtroCidade').value.toLowerCase();
-            const filtroCPF = document.getElementById('filtroCPF').value.toLowerCase();
-            const filtroRG = document.getElementById('filtroRG').value.toLowerCase();
-            const filtroMaterial = document.getElementById('filtroMaterial').value;
-            const filtroBolsaFamilia = document.getElementById('filtroBolsaFamilia').value;
-            
-            const filtrados = pescadores.filter(pescador => {
-                // Filtro por nome
-                if (filtroNome && !pescador.nome.toLowerCase().includes(filtroNome)) {
-                    return false;
+            if (idPescador) {
+                // Busca o pescador no array local (que já está sincronizado com o Firebase)
+                pescador = pescadores.find(p => p.id === Number(idPescador));
+                if (!pescador) {
+                    alert('Pescador não encontrado!');
+                    return;
                 }
                 
-                // Filtro por cidade
-                if (filtroCidade && !pescador.cidade.toLowerCase().includes(filtroCidade)) {
-                    return false;
-                }
+                gerarPDFComDados(pescador);
+            } else {
+                if (!validarFormulario()) return;
                 
-                // Filtro por CPF
-                if (filtroCPF && !pescador.cpf.includes(filtroCPF)) {
-                    return false;
-                }
-                
-                // Filtro por RG
-                if (filtroRG && !pescador.rg.includes(filtroRG)) {
-                    return false;
-                }
-                
-                // Filtro por material
-                if (filtroMaterial) {
-                    if (filtroMaterial === 'Malhadeira' && !pescador.materiais.malhadeira.quantidade) {
-                        return false;
-                    }
-                    if (filtroMaterial === 'Canoa' && !pescador.materiais.canoa.quantidade) {
-                        return false;
-                    }
-                    if (filtroMaterial === 'Motor de Popa' && !pescador.materiais.motor.quantidade) {
-                        return false;
-                    }
-                    if (filtroMaterial === 'Arrastão' && !pescador.materiais.arrastao.quantidade) {
-                        return false;
-                    }
-                }
-                
-                // Filtro por Bolsa Família
-                if (filtroBolsaFamilia && pescador.bolsaFamilia !== filtroBolsaFamilia) {
-                    return false;
-                }
-                
-                return true;
-            });
-            
-            atualizarListagem(filtrados);
-        }
-        
-        // Função para excluir um pescador
-        function excluirPescador(id) {
-            if (confirm('Tem certeza que deseja excluir este pescador?')) {
-                pescadores = pescadores.filter(p => p.id !== id);
-                salvarNoLocalStorage();
-                atualizarListagem();
-            }
-        }
-        
-        // Função para cadastrar e gerar PDF
-        function cadastrarEGerarPDF() {
-            if (validarFormulario()) {
-                cadastrarPescador();
-                // O último pescador cadastrado é o que acabamos de adicionar
-                gerarPDF(pescadores[pescadores.length - 1].id);
-            }
-        }
-        
-        // Função para formatar CPF
-        function formatarCPF(cpf) {
-            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-        }
-        
-        // Função para formatar data
-        function formatarData(dataISO) {
-            const data = new Date(dataISO);
-            const dia = data.getDate().toString().padStart(2, '0');
-            const mes = (data.getMonth() + 1).toString().padStart(2, '0');
-            const ano = data.getFullYear();
-            return `${dia}/${mes}/${ano}`;
-        }
-        
-        // Função para gerar PDF
-        function gerarPDF(idPescador = null) {
-            try { 
-                let pescador;
-                
-                if (idPescador) {
-                    pescador = pescadores.find(p => p.id === idPescador);
-                    if (!pescador) {
-                        alert('Pescador não encontrado!');
-                        return;
-                    }
-                } else {
-                    if (!validarFormulario()) return;
-                    
-                    pescador = {
-                        nome: document.getElementById('nome').value,
-                        nacionalidade: document.getElementById('nacionalidade').value,
-                        endereco: document.getElementById('endereco').value,
-                        cidade: document.getElementById('cidade').value,
-                        estado: document.getElementById('estado').value,
-                        cep: document.getElementById('cep').value,
-                        rg: document.getElementById('rg').value,
-                        cpf: document.getElementById('cpf').value,
-                        rgp: document.getElementById('rgp').value,
-                        rgpOrgao: document.getElementById('rgpOrgao').value,
-                        dataInicioAtividade: document.getElementById('dataInicioAtividade').value,
-                        materiais: {
-                            malhadeira: {
-                                quantidade: document.getElementById('malhadeiraQtd').value,
-                                especificacoes: document.getElementById('malhadeiraEspec').value
-                            },
-                            canoa: {
-                                quantidade: document.getElementById('canoaQtd').value,
-                                especificacoes: document.getElementById('canoaEspec').value
-                            },
-                            manejo: document.getElementById('manejo').value,
-                            isopor: {
-                                quantidade: document.getElementById('isoporQtd').value,
-                                especificacoes: document.getElementById('isoporEspec').value
-                            },
-                            motor: {
-                                quantidade: document.getElementById('motorQtd').value,
-                                especificacoes: document.getElementById('motorEspec').value
-                            },
-                            arrastao: {
-                                quantidade: document.getElementById('arrastaoQtd').value,
-                                especificacoes: document.getElementById('arrastaoEspec').value
-                            },
-                            geladeira: {
-                                quantidade: document.getElementById('geladeiraQtd').value,
-                                especificacoes: document.getElementById('geladeiraEspec').value
-                            }
+                pescador = {
+                    nome: document.getElementById('nome').value,
+                    nacionalidade: document.getElementById('nacionalidade').value,
+                    endereco: document.getElementById('endereco').value,
+                    cidade: document.getElementById('cidade').value,
+                    estado: document.getElementById('estado').value,
+                    cep: document.getElementById('cep').value,
+                    rg: document.getElementById('rg').value,
+                    cpf: document.getElementById('cpf').value,
+                    rgp: document.getElementById('rgp').value,
+                    rgpOrgao: document.getElementById('rgpOrgao').value,
+                    dataInicioAtividade: document.getElementById('dataInicioAtividade').value,
+                    materiais: {
+                        malhadeira: {
+                            quantidade: document.getElementById('malhadeiraQtd').value,
+                            especificacoes: document.getElementById('malhadeiraEspec').value
                         },
-                        moradores: document.getElementById('moradores').value,
-                        bolsaFamilia: document.getElementById('bolsaFamilia').value
-                    };
-                }
+                        canoa: {
+                            quantidade: document.getElementById('canoaQtd').value,
+                            especificacoes: document.getElementById('canoaEspec').value
+                        },
+                        manejo: document.getElementById('manejo').value,
+                        isopor: {
+                            quantidade: document.getElementById('isoporQtd').value,
+                            especificacoes: document.getElementById('isoporEspec').value
+                        },
+                        motor: {
+                            quantidade: document.getElementById('motorQtd').value,
+                            especificacoes: document.getElementById('motorEspec').value
+                        },
+                        arrastao: {
+                            quantidade: document.getElementById('arrastaoQtd').value,
+                            especificacoes: document.getElementById('arrastaoEspec').value
+                        },
+                        geladeira: {
+                            quantidade: document.getElementById('geladeiraQtd').value,
+                            especificacoes: document.getElementById('geladeiraEspec').value
+                        }
+                    },
+                    moradores: document.getElementById('moradores').value,
+                    bolsaFamilia: document.getElementById('bolsaFamilia').value
+                };
                 
-                const dataAtual = new Date();
-                const dia = dataAtual.getDate().toString().padStart(2, '0');
-                const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0');
-                const ano = dataAtual.getFullYear();
-                
-                // Substitua estas URLs pelas imagens reais do seu documento
-                const logoUrl = '/-Z-56/imge.jpg';
-                const brasaoUrl = '/-Z-56/imgp.jpg';
-                const marcaDaguaUrl = '/-Z-56/fundo.jpg';
-                
-                const html = `
-                <div style="font-family: 'Times New Roman', serif; max-width: 800px; margin: 0 auto; padding: 10px; position: relative; page-break-inside: avoid; transform: scale(0.95); transform-origin: top center;">
-                    <!-- Marca d'água -->
-                    <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: -1;">
-                        <img src="${marcaDaguaUrl}" style="width: 550px;">
-                    </div>
-                    <!-- Cabeçalho com imagens -->
-                    <div style="text-align: center; margin-bottom: 20px; position: relative;">
-                        <div style="position: absolute; left: 0; top: 0;">
-                            <img src="${logoUrl}" style="height: 80px;">
-                        </div>
-                        <div style="position: absolute; right: 0; top: 0;">
-                            <img src="${brasaoUrl}" style="height: 80px;">
-                        </div>
-                        
-                        <h2 style="margin: 0; font-size: 16px; text-transform: uppercase;">COLÔNIA DE PESCADORES Z-56 DE COARI-AM</h2>
-                        <p style="margin: 5px 0; font-size: 12px; line-height: 1.3;">
-                            <em>FILIADA A CONFEDERAÇÃO NACIONAL DOS PESCADORES E AQUICULTORES - CNPA</em><br>
-                            <em>E FEDERAÇÃO DOS PESCADORES DO ESTADOS DO AMAZONAS - FEPESCA</em><br>
-                            <em>FUNDADA EM 28/08/2005 (COLPESCA-Z-56)</em><br>
-                            <em>RUA: ANTONIO F DE CARVALHO, Nº72 – UNIÃO.</em><br>
-                            <em>EMAIL: coloniaz58am@gmail.com</em><br>
-                            <em>CNPJ: 07.618.675/0001-48    CEP: 69.460-000    FONE: (97) 99150-8481</em>
-                        </p>
-                    </div>
-                    
-                    <!-- Título principal -->
-                    <h1 style="text-align: center; margin-bottom: 30px; font-size: 18px; text-transform: uppercase; text-decoration: underline;">
-                        DECLARAÇÃO PESCADOR ARTESANAL
-                    </h1>
-                    
-                    <!-- Corpo do documento -->
-                    <div style="margin-bottom: 20px; text-align: justify; font-size: 14px; line-height: 1.5;">
-                        <p>
-                            Eu, <strong>${pescador.nome}</strong>, ${pescador.nacionalidade}, residente e 
-                            domiciliado(a) no endereço: <strong>${pescador.endereco}, ${pescador.cidade}/${pescador.estado}, CEP: ${pescador.cep}</strong>,
-                            portador(a) da cédula de identidade nº <strong>${pescador.rg}</strong> e inscrito sob o número de
-                            CPF: <strong>${formatarCPF(pescador.cpf)}</strong>, RGP: <strong>${pescador.rgp}</strong> de <strong>${pescador.rgpOrgao}</strong>.
-                            Declaro para os devidos fins e sob as penas da lei, que exerço de forma artesanal e de economia
-                            familiar a atividade da pesca desde <strong>${formatarData(pescador.dataInicioAtividade)}</strong>, afim de ratificar tal pratica, 
-                            declaro ainda que possuo de minha propriedade os utensílios a seguir sinalados.
-                        </p>
-                    </div>
-                    
-                    <!-- Tabela de materiais -->
-                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
-                        <tr>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 40%;">MATERIAL</th>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 20%;">QUANTIDADE</th>
-                            <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 40%;">ESPECIFICAÇÕES</th>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Malhadeira</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.malhadeira.quantidade || ''}</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.malhadeira.especificacoes || ''}</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Canoa</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.canoa.quantidade || ''}</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.canoa.especificacoes || ''}</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Qual Manejo Participa?</td>
-                            <td colspan="2" style="border: 1px solid #000; padding: 8px;">${pescador.materiais.manejo || ''}</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Caixa de Isopor</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.isopor.quantidade || ''}</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.isopor.especificacoes || ''}</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Motor de Popa / Rabeta</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.motor.quantidade || ''}</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.motor.especificacoes || ''}</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Arrastão</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.arrastao.quantidade || ''}</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.arrastao.especificacoes || ''}</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Casca de Geladeira / Freezer</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.geladeira.quantidade || ''}</td>
-                            <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.geladeira.especificacoes || ''}</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Quantas pessoas moram na residência?</td>
-                            <td colspan="2" style="border: 1px solid #000; padding: 8px;">${pescador.moradores || ''}</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #000; padding: 8px;">Recebe Bolsa Família?</td>
-                            <td colspan="2" style="border: 1px solid #000; padding: 8px;">${pescador.bolsaFamilia || 'Não'}</td>
-                        </tr>
-                    </table>
-                    
-                    <!-- Texto final -->
-                    <div style="margin-bottom: 20px; text-align: justify; font-size: 14px; line-height: 1.5;">
-                        <p>
-                            Declaro ainda, que todas as informações por mim prestadas, são verdadeiras, ciente das
-                            penalidades previstas no artigo 299 e Lei nº 7.115, de 29 de agosto de 1983. Sem mais, é o que
-                            tenho a declarar, a quem possa interessar.
-                        </p>
-                    </div>
-                    
-                    <!-- Rodapé com assinaturas -->
-                    <div style="margin-top: 50px; text-align: center; font-size: 14px;">
-                        <p>Coari – AM, ${dia} de ${getNomeMes(parseInt(mes))} de ${ano}</p>
-                        
-                        <div style="margin-top: 50px;">
-                            <p>_________________________________________</p>
-                            <p>Assinatura do Pescador(a)</p>
-                        </div>
-                        
-                        <div style="margin-top: 40px;">
-                             <p>_________________________________________</p>
-                            <p>Maria Socorro Corrêa da Silva</p>
-                            <p>Secretária Geral da Colônia de Pescadores Z -56 de Coari-AM</p>
-                            
-                        </div>
-                    </div>
-                    
-                    <!-- Frase final -->
-                    <div style="text-align: center; margin-top: 30px; font-style: italic; font-size: 12px;">
-                        <p>Alegrai-vos e exultai, porque será grande a vossa recompensa nos céus.</p>
-                    </div>
-                </div>
-                `;
-
-                const janela = window.open('', '_blank');
-                janela.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Declaração de Pescador Artesanal - ${pescador.nome}</title>
-                        <style>
-                            body { 
-                                font-family: 'Times New Roman', serif; 
-                                margin: 0;
-                                padding: 0;
-                                background-color: #fff;
-                            }
-                            @media print {
-                                body { 
-                                    margin: 0; 
-                                    padding: 0; 
-                                    background: none;
-                                    height: 100%;
-                                }
-                                .no-print { display: none; }
-                                @page { 
-                                    size: A4; 
-                                    margin: 5mm 10mm;
-                                }
-                                .print-content {
-                                    page-break-inside: avoid;
-                                    height: 100%;
-                                }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="print-content">
-                            ${html}
-                        </div>
-                        <div class="no-print" style="text-align: center; margin-top: 20px; padding: 20px;">
-                            <button onclick="window.print()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                Imprimir Declaração
-                            </button>
-                            <button onclick="window.close()" style="padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
-                                Fechar Janela
-                            </button>
-                        </div>
-                    </body>
-                    </html>
-                `);
-
-                janela.document.close();
-            } catch (error) {
-                console.error("Erro ao gerar PDF:", error);
-                alert("Ocorreu um erro ao gerar o PDF. Verifique o console para mais detalhes.");
+                gerarPDFComDados(pescador);
             }
+        } catch (error) {
+            console.error("Erro ao gerar PDF:", error);
+            alert("Ocorreu um erro ao gerar o PDF. Verifique o console para mais detalhes.");
         }
-    </script>
+    }
+    
+    // Função auxiliar para gerar PDF com os dados do pescador
+    function gerarPDFComDados(pescador) {
+        const dataAtual = new Date();
+        const dia = dataAtual.getDate().toString().padStart(2, '0');
+        const mes = (dataAtual.getMonth() + 1).toString().padStart(2, '0');
+        const ano = dataAtual.getFullYear();
+        
+        // Substitua estas URLs pelas imagens reais do seu documento
+        const logoUrl = '/-Z-56/imge.jpg';
+        const brasaoUrl = '/-Z-56/imgp.jpg';
+        const marcaDaguaUrl = '/-Z-56/fundo.jpg';
+        
+        const html = `
+        <div style="font-family: 'Times New Roman', serif; max-width: 800px; margin: 0 auto; padding: 10px; position: relative; page-break-inside: avoid; transform: scale(0.95); transform-origin: top center;">
+            <!-- Marca d'água -->
+            <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: -1;">
+                <img src="${marcaDaguaUrl}" style="width: 550px;">
+            </div>
+            <!-- Cabeçalho com imagens -->
+            <div style="text-align: center; margin-bottom: 20px; position: relative;">
+                <div style="position: absolute; left: 0; top: 0;">
+                    <img src="${logoUrl}" style="height: 80px;">
+                </div>
+                <div style="position: absolute; right: 0; top: 0;">
+                    <img src="${brasaoUrl}" style="height: 80px;">
+                </div>
+                
+                <h2 style="margin: 0; font-size: 16px; text-transform: uppercase;">COLÔNIA DE PESCADORES Z-56 DE COARI-AM</h2>
+                <p style="margin: 5px 0; font-size: 12px; line-height: 1.3;">
+                    <em>FILIADA A CONFEDERAÇÃO NACIONAL DOS PESCADORES E AQUICULTORES - CNPA</em><br>
+                    <em>E FEDERAÇÃO DOS PESCADORES DO ESTADOS DO AMAZONAS - FEPESCA</em><br>
+                    <em>FUNDADA EM 28/08/2005 (COLPESCA-Z-56)</em><br>
+                    <em>RUA: ANTONIO F DE CARVALHO, Nº72 – UNIÃO.</em><br>
+                    <em>EMAIL: coloniaz58am@gmail.com</em><br>
+                    <em>CNPJ: 07.618.675/0001-48    CEP: 69.460-000    FONE: (97) 99150-8481</em>
+                </p>
+            </div>
+            
+            <!-- Título principal -->
+            <h1 style="text-align: center; margin-bottom: 30px; font-size: 18px; text-transform: uppercase; text-decoration: underline;">
+                DECLARAÇÃO PESCADOR ARTESANAL
+            </h1>
+            
+            <!-- Corpo do documento -->
+            <div style="margin-bottom: 20px; text-align: justify; font-size: 14px; line-height: 1.5;">
+                <p>
+                    Eu, <strong>${pescador.nome}</strong>, ${pescador.nacionalidade}, residente e 
+                    domiciliado(a) no endereço: <strong>${pescador.endereco}, ${pescador.cidade}/${pescador.estado}, CEP: ${pescador.cep}</strong>,
+                    portador(a) da cédula de identidade nº <strong>${pescador.rg}</strong> e inscrito sob o número de
+                    CPF: <strong>${formatarCPF(pescador.cpf)}</strong>, RGP: <strong>${pescador.rgp}</strong> de <strong>${pescador.rgpOrgao}</strong>.
+                    Declaro para os devidos fins e sob as penas da lei, que exerço de forma artesanal e de economia
+                    familiar a atividade da pesca desde <strong>${formatarData(pescador.dataInicioAtividade)}</strong>, afim de ratificar tal pratica, 
+                    declaro ainda que possuo de minha propriedade os utensílios a seguir sinalados.
+                </p>
+            </div>
+            
+            <!-- Tabela de materiais -->
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+                <tr>
+                    <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 40%;">MATERIAL</th>
+                    <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 20%;">QUANTIDADE</th>
+                    <th style="border: 1px solid #000; padding: 8px; text-align: left; width: 40%;">ESPECIFICAÇÕES</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Malhadeira</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.malhadeira.quantidade || ''}</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.malhadeira.especificacoes || ''}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Canoa</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.canoa.quantidade || ''}</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.canoa.especificacoes || ''}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Qual Manejo Participa?</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 8px;">${pescador.materiais.manejo || ''}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Caixa de Isopor</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.isopor.quantidade || ''}</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.isopor.especificacoes || ''}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Motor de Popa / Rabeta</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.motor.quantidade || ''}</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.motor.especificacoes || ''}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Arrastão</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.arrastao.quantidade || ''}</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.arrastao.especificacoes || ''}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Casca de Geladeira / Freezer</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.geladeira.quantidade || ''}</td>
+                    <td style="border: 1px solid #000; padding: 8px;">${pescador.materiais.geladeira.especificacoes || ''}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Quantas pessoas moram na residência?</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 8px;">${pescador.moradores || ''}</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 8px;">Recebe Bolsa Família?</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 8px;">${pescador.bolsaFamilia || 'Não'}</td>
+                </tr>
+            </table>
+            
+            <!-- Texto final -->
+            <div style="margin-bottom: 20px; text-align: justify; font-size: 14px; line-height: 1.5;">
+                <p>
+                    Declaro ainda, que todas as informações por mim prestadas, são verdadeiras, ciente das
+                    penalidades previstas no artigo 299 e Lei nº 7.115, de 29 de agosto de 1983. Sem mais, é o que
+                    tenho a declarar, a quem possa interessar.
+                </p>
+            </div>
+            
+            <!-- Rodapé com assinaturas -->
+            <div style="margin-top: 50px; text-align: center; font-size: 14px;">
+                <p>Coari – AM, ${dia} de ${getNomeMes(parseInt(mes))} de ${ano}</p>
+                
+                <div style="margin-top: 50px;">
+                    <p>_________________________________________</p>
+                    <p>Assinatura do Pescador(a)</p>
+                </div>
+                
+                <div style="margin-top: 40px;">
+                     <p>_________________________________________</p>
+                    <p>Maria Socorro Corrêa da Silva</p>
+                    <p>Secretária Geral da Colônia de Pescadores Z -56 de Coari-AM</p>
+                    
+                </div>
+            </div>
+            
+            <!-- Frase final -->
+            <div style="text-align: center; margin-top: 30px; font-style: italic; font-size: 12px;">
+                <p>Alegrai-vos e exultai, porque será grande a vossa recompensa nos céus.</p>
+            </div>
+        </div>
+        `;
+
+        const janela = window.open('', '_blank');
+        janela.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Declaração de Pescador Artesanal - ${pescador.nome}</title>
+                <style>
+                    body { 
+                        font-family: 'Times New Roman', serif; 
+                        margin: 0;
+                        padding: 0;
+                        background-color: #fff;
+                    }
+                    @media print {
+                        body { 
+                            margin: 0; 
+                            padding: 0; 
+                            background: none;
+                            height: 100%;
+                        }
+                        .no-print { display: none; }
+                        @page { 
+                            size: A4; 
+                            margin: 5mm 10mm;
+                        }
+                        .print-content {
+                            page-break-inside: avoid;
+                            height: 100%;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-content">
+                    ${html}
+                </div>
+                <div class="no-print" style="text-align: center; margin-top: 20px; padding: 20px;">
+                    <button onclick="window.print()" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Imprimir Declaração
+                    </button>
+                    <button onclick="window.close()" style="padding: 10px 20px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+                        Fechar Janela
+                    </button>
+                </div>
+            </body>
+            </html>
+        `);
+
+        janela.document.close();
+    }
+</script>
 </body>
 </html>
